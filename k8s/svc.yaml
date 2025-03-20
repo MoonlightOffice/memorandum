@@ -4,6 +4,7 @@ metadata:
   name: tutorial-svc
 spec:
   type: LoadBalancer
+  ipFamilyPolicy: PreferDualStack
   ports:
     - port: 8080
       targetPort: 8080
