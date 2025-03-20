@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tutorial-deploy
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: tutorial-pod
+  template:
+    metadata:
+      labels:
+        app: tutorial-pod
+    spec:
+      containers:
+        - name: tutorial-container
+          image: caddy
+          workingDir: /etc
+          command: [
+            "caddy",
+            "file-server",
+            "--browse",
+            "--listen",
+            "0.0.0.0:8080",
+          ]

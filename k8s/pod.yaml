@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tutorial-pod
+  labels:
+     app: tutorial-pod
+spec:
+  containers:
+    - name: tutorial-container
+      image: caddy
+      imagePullPolicy: IfNotPresent
+      workingDir: /etc
+      env:
+      - name: FOO
+        value: FOOFOO
+      resources:
+        requests:
+          cpu: 250m
+          memory: 250Mi
+        limits:
+          cpu: 500m
+          memory: 500Mi
+      command: [
+        "caddy",
+        "file-server",
+        "--browse",
+        "--listen",
+        "0.0.0.0:8080",
+      ]
+    - name: another-container
+      image: caddy
+      imagePullPolicy: IfNotPresent
+      workingDir: /bin
+      env:
+      - name: BAR
+        value: BARBAR
+      command: [
+        "caddy",
+        "file-server",
+        "--browse",
+        "--listen",
+        "0.0.0.0:8080",
+      ]
+  initContainers:
+    - name: init-container
+      image: caddy
+      imagePullPolicy: IfNotPresent
+      command: ["echo", "hello, I am InitContainer!"]
+  terminationGracePeriodSeconds: 1

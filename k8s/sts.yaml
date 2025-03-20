@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tutorial-sts-svc
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: tutorial-pod
+  ports:
+  - port: 8080
+    targetPort: 8080
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tutorial-sts
+spec:
+  serviceName: tutorial-sts-svc
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tutorial-pod
+  volumeClaimTemplates:
+  - metadata:
+      name: tutorial-sts-pvc
+    spec:
+      storageClassName: hostpath
+      accessModes:
+      - ReadWriteOncePod
+      resources:
+        requests:
+          storage: 10Mi
+  template:
+    metadata:
+      labels:
+        app: tutorial-pod
+    spec:
+      containers:
+        - name: tutorial-container
+          image: caddy
+          volumeMounts:
+          - name: tutorial-sts-pvc
+            mountPath: /work
+          workingDir: /work
+          command: [
+            "caddy",
+            "file-server",
+            "--browse",
+            "--listen",
+            "0.0.0.0:8080",
+          ]

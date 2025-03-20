@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tutorial-cm
+data:
+  foo: FOOFOO
+  bar: BARBAR
+  longText: |
+    Hello, 世界!
+    hello under world
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tutorial-pod
+  labels:
+    app: tutorial-pod
+spec:
+  volumes:
+  - name: tutorial-vol
+    configMap:
+      name: tutorial-cm
+  containers:
+    - name: tutorial-container
+      image: caddy
+      volumeMounts:
+      - name: tutorial-vol
+        mountPath: /work
+      env:
+      - name: FOO
+        valueFrom:
+          configMapKeyRef:
+            name: tutorial-cm
+            key: foo
+      workingDir: /work
+      command: [
+        "caddy",
+        "file-server",
+        "--browse",
+        "--listen",
+        "0.0.0.0:8080",
+      ]
+  terminationGracePeriodSeconds: 1
+

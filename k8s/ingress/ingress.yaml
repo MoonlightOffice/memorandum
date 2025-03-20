@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tutorial-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: hydra.localhost
+    http:
+      paths:
+      - pathType: Prefix
+        backend:
+          service:
+            name: hydra
+            port:
+              number: 8000
+        path: /
+  - host: shield.localhost
+    http:
+      paths:
+      - pathType: Prefix
+        backend:
+          service:
+            name: shield
+            port:
+              number: 8000
+        path: /
+# This section is only required if TLS is to be enabled for the Ingress
+  tls:
+  - hosts:
+    - shield.localhost
+    secretName: shield.localhost.tls

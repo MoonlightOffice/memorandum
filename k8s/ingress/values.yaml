@@ -1,0 +1,7 @@
+controller:
+  replicaCount: 2
+
+  # Vultr LB configuration options: https://github.com/vultr/vultr-cloud-controller-manager/blob/master/docs/load-balancers.md
+  service:
+    annotations:
+      service.beta.kubernetes.io/vultr-loadbalancer-node-count: 1 ## Must be odd numbers

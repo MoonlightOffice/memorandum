@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hydra
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector:
+    app: hydra
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hydra
+  labels:
+    app: hydra
+spec:
+  containers:
+  - name: hydra
+    image: caddy
+    imagePullPolicy: IfNotPresent
+    ports:
+    - containerPort: 8000
+    workingDir: /bin
+    command: ["caddy", "file-server", "--browse", "--listen", "0.0.0.0:8000"]
+  terminationGracePeriodSeconds: 1
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: shield
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector:
+    app: shield
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: shield
+  labels:
+    app: shield
+spec:
+  containers:
+  - name: shield
+    image: caddy
+    imagePullPolicy: IfNotPresent
+    ports:
+    - containerPort: 8000
+    workingDir: /etc
+    command: ["caddy", "file-server", "--browse", "--listen", "0.0.0.0:8000"]
+  terminationGracePeriodSeconds: 1
