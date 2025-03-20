@@ -32,15 +32,17 @@ type Company struct {
 	CompanyId     string `gorm:"primaryKey;size:128"`
 	Name          string `gorm:"not null"`
 	EstablishedAt int64  `gorm:"not null"`
+	CreatedAt     int64  `gorm:"not null;autoUpdateTime:false"`
 	UpdatedAt     int64  `gorm:"not null;autoUpdateTime:false"`
 }
 
 func NewCompany(name string) Company {
+	now := generateNow()
 	return Company{
 		CompanyId:     generateId("comp"),
 		Name:          name,
-		EstablishedAt: generateNow(),
-		UpdatedAt:     1115,
+		EstablishedAt: now,
+		UpdatedAt:     now,
 	}
 }
 
