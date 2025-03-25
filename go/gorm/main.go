@@ -18,14 +18,17 @@ import (
 func main() {
 	db := InitDB()
 
-	db.AutoMigrate(
+	err := db.AutoMigrate(
 		Company{},
 		Employee{},
 	)
+	if err != nil {
+		panic(err)
+	}
 
 	//db.Migrator().DropColumn(&Company{}, "EstablishedAt")
 
-	CheckPool(db)
+	FulltextSearch(db)
 }
 
 type Company struct {
@@ -54,7 +57,7 @@ func (Company) TableName() string {
 type Employee struct {
 	CompanyId  string         `gorm:"primaryKey;size:128"`
 	EmployeeId string         `gorm:"primaryKey;size:128"`
-	Name       string         `gorm:"not null;type:longtext"`
+	Name       string         `gorm:"not null;type:longtext;index:,class:FULLTEXT,option:WITH PARSER ngram"`
 	JoinedAt   int64          `gorm:"not null;index"`
 	Metadata   datatypes.JSON `gorm:"not null"`
 }
@@ -77,8 +80,10 @@ func NewEmployee(companyId, name string) Employee {
 
 var (
 	C1 = NewCompany("MoonlightOffice")
-	E1 = NewEmployee(C1.CompanyId, "Mizuki Kanzaki")
+	C2 = NewCompany("Soleil")
+	E1 = NewEmployee(C1.CompanyId, "神崎美月")
 	E2 = NewEmployee(C1.CompanyId, "Mikuru Natsuki")
+	E3 = NewEmployee(C2.CompanyId, "Ichigo Hoshimiya")
 )
 
 func Find(db *gorm.DB) {
@@ -176,6 +181,30 @@ func Delete(db *gorm.DB) {
 	var e Employee
 	result = db.Where("employee_id = ?", E2.EmployeeId).First(&e)
 	fmt.Println(errors.Is(result.Error, gorm.ErrRecordNotFound))
+}
+
+func Join(db *gorm.DB) {
+	if err := db.Save([]Company{C1, C2}).Error; err != nil {
+		panic(err)
+	}
+	if err := db.Save([]Employee{E1, E2, E3}).Error; err != nil {
+		panic(err)
+	}
+
+	var employees []Employee
+	db.Joins("JOIN COMPANY ON COMPANY.company_id = employees.company_id").
+		Where("employees.company_id = ?", E1.CompanyId).
+		Where("employees.name LIKE CONCAT(?, '%')", E1.Name).
+		Find(&employees)
+	fmt.Println(len(employees))
+}
+
+func FulltextSearch(db *gorm.DB) {
+	db.Save([]Employee{E1, E2})
+
+	var e Employee
+	result := db.Where("MATCH (name) AGAINST ('+美月' IN BOOLEAN MODE)").First(&e)
+	fmt.Println(e, result.Error)
 }
 
 func Transaction(db *gorm.DB) {
