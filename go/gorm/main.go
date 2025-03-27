@@ -33,8 +33,8 @@ func main() {
 
 type Company struct {
 	CompanyId     string `gorm:"primaryKey;size:128"`
-	Name          string `gorm:"not null"`
-	EstablishedAt int64  `gorm:"not null"`
+	Name          string `gorm:"not null;index:idx_sample,priority:1"`
+	EstablishedAt int64  `gorm:"not null;index:idx_sample,priority:2"`
 	CreatedAt     int64  `gorm:"not null;autoUpdateTime:false"`
 	UpdatedAt     int64  `gorm:"not null;autoUpdateTime:false"`
 }
