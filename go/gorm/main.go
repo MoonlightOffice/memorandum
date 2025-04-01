@@ -26,16 +26,22 @@ func main() {
 		panic(err)
 	}
 
+	db.Save([]Company{C1, C2})
+
+	var comps []Company
+	db.Debug().Where("? < created_at", 10000).Where("created_at < 2743481367").Find(&comps)
+	println(len(comps))
+
 	//db.Migrator().DropColumn(&Company{}, "EstablishedAt")
 
-	FulltextSearch(db)
+	//FulltextSearch(db)
 }
 
 type Company struct {
 	CompanyId     string `gorm:"primaryKey;size:128"`
 	Name          string `gorm:"not null;index:idx_sample,priority:1"`
 	EstablishedAt int64  `gorm:"not null;index:idx_sample,priority:2"`
-	CreatedAt     int64  `gorm:"not null;autoUpdateTime:false"`
+	CreatedAt     int64  `gorm:"not null;autoUpdateTime:false;index:created_at"`
 	UpdatedAt     int64  `gorm:"not null;autoUpdateTime:false"`
 }
 
