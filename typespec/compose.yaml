@@ -1,0 +1,9 @@
+services:
+  swagger:
+    image: docker.swagger.io/swaggerapi/swagger-ui
+    environment:
+      SWAGGER_JSON: /space/openapi.yaml
+    volumes:
+      - ./tsp-output/schema:/space
+    ports:
+      - 80:8080
