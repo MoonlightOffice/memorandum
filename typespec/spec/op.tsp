@@ -1,5 +1,7 @@
 import "@typespec/http";
+import "@typespec/sse";
 import "./common.tsp";
+import "@typespec/events";
 
 using TypeSpec.Http;
 
@@ -34,8 +36,9 @@ enum PetType {
 @route("/pets")
 namespace Pets {
   #deprecated ""
+  @get
   @summary("Get a pet record")
-  @get op getPet(@path id: string): Resp<Pet, ErrCommon>;
+  op getPet(@path id: string): Resp<Pet, ErrCommon>;
 
   /**
    * ### Sample Documentation
@@ -45,7 +48,55 @@ namespace Pets {
    * hehe
    * hehe
    */
-  @post
   @route("/:id/create-pet")
-  op createPet(req: ReqSecure<Pet>): Resp<Pet>;
+  @post
+  op createPet(req: ReqSecure<Pet>): {
+    @body resp: bytes;
+  };
+}
+
+@route("/experiment")
+namespace Experiment {
+  @TypeSpec.Events.events
+  union Events {
+    someEvent: SomeEvent,
+    anotherEvent: AnotherEvent,
+
+    @TypeSpec.Events.contentType("text/plain")
+    @TypeSpec.SSE.terminalEvent
+    "[unsubscribe]",
+  }
+
+  model SomeEvent {
+    @statusCode statusCode: 200;
+    err: Err | null;
+    eventId: string;
+    timestamp: int64;
+    content: string;
+  }
+
+  model AnotherEvent {
+    @statusCode statusCode: 200;
+    err: Err | null;
+    eventId: string;
+    timestamp: int64;
+    userId: string;
+    content: string;
+  }
+
+  /**
+   * Sample Server-Sent Event endpoint
+   */
+  @route("/sse")
+  @post
+  op sse(req: ReqSecure<null>): TypeSpec.SSE.SSEStream<Events>;
+
+  alias Events2 = SomeEvent | AnotherEvent;
+
+  /**
+   * Sample Server-Sent Event endpoint 2
+   */
+  @route("/sse2")
+  @post
+  op sse2(req: ReqSecure<null>): Events2;
 }
