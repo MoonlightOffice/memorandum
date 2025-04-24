@@ -27,15 +27,13 @@ func main() {
 	}
 
 	//db.Migrator().DropColumn(&Company{}, "EstablishedAt")
-
-	FulltextSearch(db)
 }
 
 type Company struct {
 	CompanyId     string `gorm:"primaryKey;size:128"`
 	Name          string `gorm:"not null;index:idx_sample,priority:1"`
 	EstablishedAt int64  `gorm:"not null;index:idx_sample,priority:2"`
-	CreatedAt     int64  `gorm:"not null;autoUpdateTime:false"`
+	CreatedAt     int64  `gorm:"not null;autoCreateTime:false"`
 	UpdatedAt     int64  `gorm:"not null;autoUpdateTime:false"`
 }
 
