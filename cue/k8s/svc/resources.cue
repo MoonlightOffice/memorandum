@@ -1,0 +1,5 @@
+package svc
+
+resources: [
+    web
+]
