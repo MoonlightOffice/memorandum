@@ -270,3 +270,29 @@ func CheckPool(db *gorm.DB) {
 	}
 	wg.Wait()
 }
+
+func CTE(db *gorm.DB) {
+	db.Save([]Employee{E1, E2, E3})
+
+	query := `WITH e_with_count AS (
+				SELECT
+					company_id,
+					employee_id,
+					ROW_NUMBER() OVER (PARTITION BY company_id) AS rn
+				FROM employees
+			) SELECT
+				company_id,
+				employee_id,
+				name,
+				joined_at,
+				metadata
+			FROM employees
+			WHERE employee_id IN (
+				SELECT employee_id
+				FROM e_with_count
+				WHERE rn = 1
+			)`
+	es := []Employee{}
+	db.Raw(query).Scan(&es)
+	fmt.Println(es)
+}
