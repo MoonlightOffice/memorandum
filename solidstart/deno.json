@@ -1,0 +1,23 @@
+{
+  "imports": {
+    "@std/yaml": "jsr:@std/yaml@^1.0.7",
+    "~/": "./src/"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "solid-js",
+    "lib": [
+      "dom",
+      "esnext"
+    ]
+  },
+  "exclude": [".output/*", ".vinxi/*"],
+  "lint": {
+    "rules": {
+      "exclude": ["no-sloppy-imports", "no-window"]
+    }
+  },
+  "unstable": [
+    "sloppy-imports"
+  ]
+}
